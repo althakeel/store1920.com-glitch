@@ -70,8 +70,17 @@ const UniqueProductCategory = () => {
       setLoading(true);
       try {
         const data = await getProductsByCategories(childCategoryIds, page, PRODUCTS_PER_PAGE);
-        setProducts((prev) => (page === 1 ? data : [...prev, ...(data || [])]));
-        setHasMore(data?.length >= PRODUCTS_PER_PAGE);
+        
+        // Filter out products without images or with zero price
+        const validProducts = (data || []).filter(p => {
+          const hasImage = Array.isArray(p.images) && p.images.length > 0 && p.images[0]?.src;
+          const price = parseFloat(p.price || p.regular_price || 0);
+          const hasValidPrice = price > 0;
+          return hasImage && hasValidPrice;
+        });
+        
+        setProducts((prev) => (page === 1 ? validProducts : [...prev, ...validProducts]));
+        setHasMore(validProducts?.length >= PRODUCTS_PER_PAGE);
       } catch (err) {
         console.error("Error fetching products:", err);
         setProducts([]);

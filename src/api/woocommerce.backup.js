@@ -4,222 +4,11 @@ import axios from "axios";
 const _categoryCache = {};
 const _productCache = {};
 
-// Version identifier to track which code is running
-const API_VERSION = 'v2.1-static-category-mapping';
-console.log(`🔧 WooCommerce API ${API_VERSION} loaded`);
-
-// ===== STATIC CATEGORY SLUG TO ID MAPPING =====
-// This ensures the correct category is ALWAYS matched regardless of API issues
-const CATEGORY_SLUG_MAP = {
-  // Accessories
-  'accessories': 6525,
-  'bags': 6600,
-  'belts': 6601,
-  'body-jewelry': 6611,
-  'bracelets-bangles': 6608,
-  'earrings': 6607,
-  'hats-headwear': 6604,
-  'jewelry-watches': 6605,
-  'mens-watches': 6609,
-  'necklaces': 6606,
-  'scarves-gloves': 6603,
-  'sunglasses-eyewear': 6602,
-  'womens-watches': 6610,
-  
-  // Automotive & Motorcycle
-  'automotive-motorcycle': 6531,
-  'atv-off-road-accessories': 6662,
-  'car-electronics-lights': 6656,
-  'car-exterior-accessories': 6658,
-  'car-interior-accessories': 6657,
-  'car-repair-tools': 6659,
-  'car-wash-maintenance': 6655,
-  'motorcycle-gear-helmets': 6660,
-  'motorcycle-parts-accessories': 6661,
-  
-  // Baby, Kids & Maternity
-  'baby-kids-maternity': 6528,
-  'activity-gear-baby-carriers': 6635,
-  'baby-care-hygiene': 6634,
-  'baby-clothing': 6629,
-  'baby-shoes-kids-shoes': 6632,
-  'bed-linens': 6637,
-  'feeding-nursing': 6631,
-  'kids-accessories': 6636,
-  'kids-clothing': 6630,
-  'nursery-baby-furniture': 6633,
-  
-  // Beauty & Personal Care
-  'beauty-personal-care': 6526,
-  'dental-care-supplies': 6617,
-  'hair-extensions-wigs': 6614,
-  'hair-tools-accessories': 6615,
-  'makeup-cosmetics': 6612,
-  'massage-relaxation': 6616,
-  'skincare-haircare': 6613,
-  'tattoo-body-art': 6618,
-  
-  // Electronics & Smart Devices
-  'electronics-smart-devices': 498,
-  'cameras-photography': 6541,
-  'computer-components-desktops': 6543,
-  'games-gaming-accessories': 6542,
-  'home-audio-video': 6539,
-  'laptops-tablets': 6544,
-  'mobile-phones': 6535,
-  'networking-communication': 6545,
-  'phone-accessories': 6536,
-  'phone-parts-repair': 6537,
-  'portable-audio-video': 6540,
-  'smart-electronics-smart-home': 6538,
-  'wearable-tech': 6546,
-  
-  // Furniture & Home Living
-  'furniture-home-living': 6521,
-  'bedding-linens': 6570,
-  'bedroom-furniture': 6565,
-  'dining-room-furniture': 6567,
-  'home-office-essentials': 6571,
-  'kitchen-dining-furniture': 6572,
-  'living-room-furniture': 6566,
-  'office-furniture': 6568,
-  'outdoor-furniture': 6569,
-  'storage-organization': 6573,
-  
-  // Home Appliances
-  'home-appliances': 6519,
-  'air-quality-purifiers': 6551,
-  'cleaning-appliances': 6548,
-  'heating-cooling-appliances': 6550,
-  'household-appliances': 6553,
-  'kitchen-appliances': 6547,
-  'laundry-appliances': 6549,
-  'personal-care-appliances': 6552,
-  
-  // Home Improvement & Tools
-  'home-improvement-tools': 6520,
-  'bathroom-fixtures-accessories': 6558,
-  'electrical-equipment-supplies': 6555,
-  'gardening-tools-supplies': 6564,
-  'hand-tools-power-tools': 6561,
-  'hardware-tools-fasteners': 6556,
-  'lighting-light-bulbs': 6559,
-  'measurement-analysis-tools': 6562,
-  'painting-supplies-wall-treatments': 6557,
-  'plumbing-supplies': 6554,
-  'smart-home-devices': 6560,
-  'welding-industrial-equipment': 6563,
-  
-  // Lingerie & Loungewear
-  'lingerie-loungewear': 6524,
-  'bras-panties': 6594,
-  'mens-underwear': 6598,
-  'new-arrivals-lingerie-loungewear': 6599,
-  'shapewear': 6595,
-  'sleep-lounge': 6596,
-  'socks-hosiery': 6597,
-  
-  // Men's Clothing
-  'mens-clothing': 6522,
-  'blazers-suits': 6578,
-  'clothing-sets': 6581,
-  'jackets-outerwear': 6576,
-  'new-arrivals': 6582,
-  'pants-jeans': 6575,
-  'shorts': 6579,
-  'sweaters-hoodies': 6577,
-  't-shirts-shirts': 6574,
-  'winter-wear-down-jackets': 6580,
-  
-  // Pet Supplies
-  'pet-supplies': 6533,
-  'birds': 6673,
-  'cats': 6671,
-  'dogs': 6670,
-  'farm-animals': 6676,
-  'fish-aquatic-pets': 6672,
-  'reptiles-amphibians': 6675,
-  'small-animals': 6674,
-  
-  // Security & Safety
-  'security-safety': 6532,
-  'access-control-systems': 6664,
-  'alarm-sensors': 6668,
-  'emergency-kits-self-defense': 6667,
-  'home-safes-security-accessories': 6666,
-  'intercom-systems': 6669,
-  'video-surveillance-systems': 6663,
-  'workplace-safety-supplies': 6665,
-  
-  // Shoes & Footwear
-  'shoes-footwear': 6527,
-  'business-shoes': 6627,
-  'mens-boots': 6626,
-  'mens-casual-shoes': 6624,
-  'mens-sandals-slippers': 6625,
-  'pumps-heels': 6621,
-  'shoe-accessories': 6628,
-  'womens-boots': 6619,
-  'womens-casual-shoes': 6623,
-  'womens-sandals-slippers': 6620,
-  'womens-sandals-slippers-shoes-footwear': 6622,
-  
-  // Special Occasion & Costumes
-  'special-occasion-costumes': 6534,
-  'cosplay-costumes': 6677,
-  'cultural-traditional-clothing': 6679,
-  'dancewear-stage-outfits': 6678,
-  'workwear-uniforms': 6680,
-  
-  // Sports, Outdoors & Hobbies
-  'sports-outdoors-hobbies': 6530,
-  'cardio-training-equipment': 6652,
-  'cycling-biking': 6649,
-  'fishing-kayaking': 6648,
-  'hiking-camping': 6647,
-  'hobby-collectibles': 6654,
-  'musical-instruments': 6653,
-  'racquet-sports': 6650,
-  'strength-training-gym-equipment': 6651,
-  
-  // Toys, Games & Entertainment
-  'toys-games-entertainment': 6529,
-  'action-figures-collectibles': 6642,
-  'building-construction-sets': 6641,
-  'dolls-accessories': 6639,
-  'electronic-toys': 6645,
-  'kids-gifts': 6646,
-  'learning-educational-toys': 6638,
-  'pools-water-activities': 6644,
-  'remote-control-toys': 6640,
-  'sports-outdoor-toys': 6643,
-  
-  // Women's Clothing
-  'womens-clothing': 6523,
-  'bottoms-skirts-pants': 6586,
-  'curve-plus-size-clothing': 6588,
-  'dresses-gowns': 6584,
-  'matching-sets': 6592,
-  'new-arrivals-womens-clothing': 6593,
-  'outerwear-jackets': 6587,
-  'special-occasion-dresses': 6591,
-  'swimwear': 6589,
-  'tops-blouses': 6585,
-  'wedding-dresses': 6590,
-  
-  // Other Categories
-  'new': 29687,
-  'rating': 29685,
-  'recommended': 29688,
-  'season-sale': 29654,
-  'topseliing': 29686
-};
-
 // Clear cache function (useful for debugging)
 export const clearCategoryCache = () => {
   Object.keys(_categoryCache).forEach(key => delete _categoryCache[key]);
   Object.keys(_productCache).forEach(key => delete _productCache[key]);
-  console.log('✅ Cache cleared');
+  console.log('🧹 Cache cleared');
 };
 
 export const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
@@ -266,89 +55,78 @@ export const getCategories = async () => {
   return result;
 };
 
-
 // ===================== Enhanced Category Fetching by Slug =====================
 export const getCategoryBySlugAdvanced = async (slug) => {
   try {
-    console.log('=== Starting category fetch for slug:', slug, '===');
+    console.log('🔍 Starting advanced category fetch for slug:', slug);
     
-    // PRIORITY 1: Check static mapping FIRST (100% reliable)
-    if (CATEGORY_SLUG_MAP[slug]) {
-      const categoryId = CATEGORY_SLUG_MAP[slug];
-      console.log('✅ STATIC MAPPING FOUND! Slug:', slug, '-> ID:', categoryId);
-      
-      // Fetch the full category object by ID
-      try {
-        const category = await getCategoryById(categoryId);
-        if (category) {
-          console.log('✅ Category loaded:', category.name, 'ID:', category.id);
-          return category;
-        }
-      } catch (error) {
-        console.error('Error fetching category by ID:', categoryId, error.message);
-      }
-    } else {
-      console.log('⚠️ No static mapping for slug:', slug);
+    // 1️⃣ Try standard WooCommerce API first (most reliable)
+    console.log('🔄 Trying standard WooCommerce API');
+    const standardData = await getCategoryBySlug(slug);
+    console.log('🔍 Standard API response for slug', slug, ':', standardData);
+    
+    if (standardData && Array.isArray(standardData) && standardData.length > 0) {
+      console.log('✅ Found category via standard API:', standardData[0]);
+      return standardData[0];
     }
     
-    // PRIORITY 2: Fetch ALL categories and search locally
-    console.log('Step 2: Fetching all categories for local search...');
+    // 2️⃣ Try custom Store1920 endpoint as fallback
+    try {
+      const customUrl = `https://db.store1920.com/wp-json/store1920/v1/category/${slug}`;
+      console.log('🌐 Trying custom endpoint:', customUrl);
+      
+      const response = await axios.get(customUrl);
+      console.log('✅ Custom endpoint response:', response.data);
+      
+      if (response.data && !response.data.code && response.data.id) {
+        console.log('✅ Found category via custom endpoint:', response.data);
+        return response.data;
+      }
+    } catch (customError) {
+      console.log('❌ Custom endpoint failed:', customError.message);
+    }
+    
+    // 3️⃣ Try to find similar categories by searching all categories
+    console.log('� Searching for similar categories...');
     try {
       const allCategories = await getCategories();
-      console.log('Total categories fetched:', allCategories?.length);
+      console.log('� All categories count:', allCategories?.length);
       
-      if (allCategories && Array.isArray(allCategories) && allCategories.length > 0) {
-        console.log('Sample slugs:', allCategories.slice(0, 5).map(c => c.slug).join(', '));
+      if (allCategories && Array.isArray(allCategories)) {
+        // First try exact slug match
+        let similarCategory = allCategories.find(c => c.slug === slug);
         
-        // Try exact slug match
-        let matchedCategory = allCategories.find(c => c.slug === slug);
-        
-        if (matchedCategory) {
-          console.log('SUCCESS - Exact match found!');
-          console.log('Category:', matchedCategory.name);
-          console.log('ID:', matchedCategory.id);
-          console.log('Slug:', matchedCategory.slug);
-          return matchedCategory;
+        // Then try partial slug match
+        if (!similarCategory) {
+          similarCategory = allCategories.find(c => 
+            c.slug.includes(slug) || 
+            slug.includes(c.slug)
+          );
         }
         
-        console.log('No exact match for "' + slug + '", trying partial match...');
-        
-        // Try partial slug match
-        matchedCategory = allCategories.find(c => 
-          c.slug.includes(slug) || slug.includes(c.slug)
-        );
-        
-        if (matchedCategory) {
-          console.log('SUCCESS - Partial match found:', matchedCategory.name, 'ID:', matchedCategory.id);
-          return matchedCategory;
+        // Finally try name match
+        if (!similarCategory) {
+          const searchName = slug.replace(/-/g, ' ').toLowerCase();
+          similarCategory = allCategories.find(c => 
+            c.name.toLowerCase().includes(searchName) ||
+            searchName.includes(c.name.toLowerCase())
+          );
         }
         
-        console.log('No partial match, trying name match...');
-        
-        // Try name match
-        const searchName = slug.replace(/-/g, ' ').toLowerCase();
-        matchedCategory = allCategories.find(c => 
-          c.name.toLowerCase().includes(searchName) ||
-          searchName.includes(c.name.toLowerCase())
-        );
-        
-        if (matchedCategory) {
-          console.log('SUCCESS - Name match found:', matchedCategory.name, 'ID:', matchedCategory.id);
-          return matchedCategory;
+        if (similarCategory) {
+          console.log('🎯 Found similar category:', similarCategory);
+          return similarCategory;
         }
-        
-        console.log('ERROR: No category found for slug:', slug);
-        console.log('Available slugs include:', allCategories.slice(0, 20).map(c => c.slug).join(', '));
       }
     } catch (searchError) {
-      console.error('Error in local category search:', searchError.message);
+      console.log('❌ Could not search for similar categories:', searchError.message);
     }
     
-    console.log('=== No category found ===');
+    console.log('❌ No category found for slug:', slug);
     return null;
     
   } catch (error) {
-    console.error('FATAL ERROR in getCategoryBySlugAdvanced:', error);
+    console.error('❌ Error in getCategoryBySlugAdvanced:', error);
     return null;
   }
 };
@@ -416,15 +194,9 @@ export const getProductsByCategorySlugAdvanced = async (slug, page = 1, perPage 
   }
 };
 
-export const getProductsByCategories = async (categoryIds = [], page = 1, perPage = 12, order = "desc") => {
+export const getProductsByCategories = (categoryIds = [], page = 1, perPage = 42, order = "desc") => {
   if (!Array.isArray(categoryIds) || !categoryIds.length) return [];
-  try {
-    const products = await fetchAPI(`/products?category=${categoryIds.join(",")}&per_page=${perPage}&page=${page}&orderby=date&order=${order}`);
-    return Array.isArray(products) ? products : [];
-  } catch (error) {
-    console.error('❌ Error fetching products by categories:', error);
-    return [];
-  }
+  return fetchAPI(`/products?category=${categoryIds.join(",")}&per_page=12&page=${page}&orderby=date&order=${order}&_fields=id,name,slug,images,price,total_sales,enable_saving_badge,categories`);
 };
 
 export const getProductBySlug = async (slug) => {

@@ -67,6 +67,51 @@ const [currentMessage, setCurrentMessage] = useState('🚀 Fast Delivery');
     if (!name) return '';
     return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
   };
+
+  // Generate a consistent color based on the first letter
+  const getAvatarColor = (name) => {
+    if (!name) return '#667eea';
+    const colors = [
+      '#FF6B6B', // Red
+      '#4ECDC4', // Teal
+      '#45B7D1', // Blue
+      '#FFA07A', // Light Salmon
+      '#98D8C8', // Mint
+      '#F7DC6F', // Yellow
+      '#BB8FCE', // Purple
+      '#85C1E2', // Sky Blue
+      '#F8B739', // Orange
+      '#52C41A', // Green
+      '#EB5757', // Dark Red
+      '#F2994A', // Amber
+      '#9B59B6', // Violet
+      '#3498DB', // Ocean Blue
+      '#E74C3C', // Crimson
+      '#1ABC9C', // Turquoise
+      '#E67E22', // Pumpkin
+      '#2ECC71', // Emerald
+      '#F39C12', // Sun Yellow
+      '#D35400', // Burnt Orange
+      '#C0392B', // Dark Crimson
+      '#16A085', // Dark Turquoise
+      '#27AE60', // Forest Green
+      '#2980B9', // Belize Blue
+      '#8E44AD', // Wisteria
+      '#FF1493', // Deep Pink
+    ];
+    const charCode = name.charAt(0).toUpperCase().charCodeAt(0);
+    const index = charCode % colors.length;
+    return colors[index];
+  };
+
+  const getInitials = (user) => {
+    if (user?.name) {
+      return user.name.charAt(0).toUpperCase();
+    } else if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
 const messages = [
   '🚀 Fast Delivery',
   '📦 Within 2 days',
@@ -455,23 +500,49 @@ const messages = [
                   onMouseEnter={() => {
                     if (userTimeoutRef.current) clearTimeout(userTimeoutRef.current);
                     setUserDropdownOpen(true);
+                    console.log('Current user data:', user);
+                    console.log('User image:', user?.image);
+                    console.log('User photoURL:', user?.photoURL);
                   }}
                   onMouseLeave={() => {
                     userTimeoutRef.current = setTimeout(() => setUserDropdownOpen(false), 200);
                   }}
                   style={{ position: 'relative' }}
                 >
-                  <div className="avatar">
-                    {user?.image ? (
-                      <img src={user.image} alt={user.name} />
+                  <div 
+                    className="avatar"
+                    style={{ 
+                      background: (user?.image || user?.photoURL) 
+                        ? 'transparent' 
+                        : getAvatarColor(user?.name || user?.email)
+                    }}
+                  >
+                    {(user?.image || user?.photoURL) ? (
+                      <>
+                        <img 
+                          src={user.image || user.photoURL} 
+                          alt={user.name || user.email}
+                          onError={(e) => {
+                            console.error('Image failed to load:', e.target.src);
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                        <div 
+                          className="avatar-fallback"
+                          style={{ display: 'none' }}
+                        >
+                          {getInitials(user)}
+                        </div>
+                      </>
                     ) : (
                       <div className="avatar-fallback">
-                        {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                        {getInitials(user)}
                       </div>
                     )}
                   </div>
                   <div className="user-name">
-                    Hi, {user?.name ? capitalizeFirst(truncateName(user.name)) : 'User'}{' '}
+                    Hi, {user?.name ? capitalizeFirst(truncateName(user.name)) : 
+                         user?.email ? truncateName(user.email.split('@')[0]) : 'User'}{' '}
                     <CoinWidget userId={user?.id ? Number(user.id) : 0} />
                   </div>
 

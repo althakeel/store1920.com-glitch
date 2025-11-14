@@ -43,20 +43,38 @@ const Category = () => {
     if (!slug) return;
     setLoading(true);
     try {
+      console.log('🔍 Fetching category and products for slug:', slug, 'page:', pageNum);
       const result = await getProductsByCategorySlugAdvanced(slug, pageNum, PRODUCTS_PER_PAGE);
+      console.log('📦 Result:', result);
+      
       if (!result.category) {
+        console.log('⚠️ No category found, using slug as fallback name');
         setCategory({ id: null, name: slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) });
         setProducts([]);
         setHasMore(false);
         setInitialLoading(false);
         return;
       }
+      
+      console.log('✅ Category found:', result.category.name, 'ID:', result.category.id);
+      console.log('📦 Products count:', result.products.length);
+      
+      // Filter out products without images or with zero price
+      const validProducts = result.products.filter(p => {
+        const hasImage = Array.isArray(p.images) && p.images.length > 0 && p.images[0]?.src;
+        const price = parseFloat(p.price || p.regular_price || 0);
+        const hasValidPrice = price > 0;
+        return hasImage && hasValidPrice;
+      });
+      
+      console.log('✅ Valid products after filtering:', validProducts.length);
+      
       setCategory(result.category);
       setProducts((prevProducts) => {
         if (pageNum === 1) {
-          return result.products;
+          return validProducts;
         } else {
-          const newUnique = result.products.filter(
+          const newUnique = validProducts.filter(
             (p) => !prevProducts.some((existing) => existing.id === p.id)
           );
           return [...prevProducts, ...newUnique];
@@ -224,7 +242,104 @@ const Category = () => {
               </div>
             )}
           </>
-        ) : null}
+        ) : (
+          !initialLoading && (
+            <div className="pc-no-products">
+              <div className="pc-no-products-animation">
+                <div className="pc-shopping-scene">
+                  {/* Person with walking legs and arms */}
+                  <div className="pc-person">
+                    <div className="pc-head">
+                      <div className="pc-face">
+                        <span className="pc-eye pc-eye-left">•</span>
+                        <span className="pc-eye pc-eye-right">•</span>
+                        <span className="pc-sad-mouth">⌢</span>
+                        <span className="pc-happy-mouth">⌣</span>
+                      </div>
+                    </div>
+                    <div className="pc-body">
+                      <div className="pc-arms">
+                        <div className="pc-arm pc-arm-left"></div>
+                        <div className="pc-arm pc-arm-right"></div>
+                      </div>
+                    </div>
+                    <div className="pc-legs">
+                      <div className="pc-leg pc-leg-left"></div>
+                      <div className="pc-leg pc-leg-right"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Lightbulb idea */}
+                  <div className="pc-idea-bulb">💡</div>
+                  
+                  {/* Empty basket - appears first, then disappears */}
+                  <div className="pc-empty-basket">
+                    <div className="pc-basket-handles">
+                      <span className="pc-handle-left"></span>
+                      <span className="pc-handle-right"></span>
+                    </div>
+                    <div className="pc-basket-body">
+                      <div className="pc-basket-fold"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Full basket with products - appears later */}
+                  <div className="pc-full-basket">
+                    <div className="pc-basket-handles">
+                      <span className="pc-handle-left"></span>
+                      <span className="pc-handle-right"></span>
+                    </div>
+                    <div className="pc-basket-body">
+                      <div className="pc-products-in-basket">
+                        <div className="pc-product-item">📦</div>
+                        <div className="pc-product-item">🎁</div>
+                        <div className="pc-product-item">📱</div>
+                        <div className="pc-product-item">💎</div>
+                        <div className="pc-product-item">⭐</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Tears when crying */}
+                  <div className="pc-tear pc-tear-1">💧</div>
+                  <div className="pc-tear pc-tear-2">💧</div>
+                  
+                  {/* Thinking bubble */}
+                  <div className="pc-think-bubble">
+                    <div className="pc-bubble-dots">
+                      <span className="pc-dot"></span>
+                      <span className="pc-dot"></span>
+                    </div>
+                    <div className="pc-bubble-main">💭</div>
+                  </div>
+                  
+                  {/* Whoa reaction */}
+                  <div className="pc-whoa-text">Whoa! 😮</div>
+                  
+                  {/* Button to navigate */}
+                  <button 
+                    className="pc-new-arrivals-btn"
+                    onClick={() => navigate('/new')}
+                  >
+                    <span className="pc-btn-icon">✨</span>
+                    Check New Arrivals
+                    <span className="pc-btn-icon">✨</span>
+                  </button>
+                  
+                  {/* Tooltip */}
+                  <div className="pc-tooltip">
+                    <div className="pc-tooltip-arrow"></div>
+                    <span>Click to see new items!</span>
+                  </div>
+                </div>
+              </div>
+              <h3 className="pc-no-products-title">No Products Available</h3>
+              <p className="pc-no-products-text">
+                This category is currently empty. Check back soon for new arrivals!
+              </p>
+            </div>
+          )
+        )}
       </div>
 
       <div id="pc-cart-icon" ref={cartIconRef} />

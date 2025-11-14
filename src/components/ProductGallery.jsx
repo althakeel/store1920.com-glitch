@@ -15,6 +15,9 @@ export default function ProductGallery({
   const [mainLoading, setMainLoading] = useState(true);
   const modalThumbListRef = useRef(null);
   const [thumbsLoaded, setThumbsLoaded] = useState(false);
+  const galleryRef = useRef(null);
+  const [isAtEnd, setIsAtEnd] = useState(false);
+  const [isScrollLocked, setIsScrollLocked] = useState(true);
 
   // Zoom and pan state for modal
   const [zoomScale, setZoomScale] = useState(1);
@@ -53,6 +56,51 @@ useEffect(() => {
       return () => clearTimeout(timer);
     }
   }, [mainLoading]);
+
+  // Handle scroll locking on gallery - scroll through images first, then allow page scroll
+  useEffect(() => {
+    const handleGalleryScroll = (e) => {
+      if (!galleryRef.current || images.length <= 1) return;
+
+      const isLastImage = mainIndex === images.length - 1;
+      const isFirstImage = mainIndex === 0;
+
+      // If scrolling down and not at last image, prevent page scroll
+      if (e.deltaY > 0 && !isLastImage && isScrollLocked) {
+        e.preventDefault();
+        handleNext();
+      }
+      // If scrolling up and not at first image, prevent page scroll
+      else if (e.deltaY < 0 && !isFirstImage && isScrollLocked) {
+        e.preventDefault();
+        handlePrev();
+      }
+      // If at last image and scrolling down, unlock scroll
+      else if (e.deltaY > 0 && isLastImage) {
+        setIsScrollLocked(false);
+      }
+      // If at first image and scrolling up, unlock scroll
+      else if (e.deltaY < 0 && isFirstImage) {
+        setIsScrollLocked(false);
+      }
+    };
+
+    const gallery = galleryRef.current;
+    if (gallery) {
+      gallery.addEventListener('wheel', handleGalleryScroll, { passive: false });
+    }
+
+    return () => {
+      if (gallery) {
+        gallery.removeEventListener('wheel', handleGalleryScroll);
+      }
+    };
+  }, [mainIndex, images.length, isScrollLocked]);
+
+  // Reset scroll lock when user manually changes image
+  useEffect(() => {
+    setIsScrollLocked(true);
+  }, [mainIndex]);
 
   // Scroll modal thumbnails
   const scrollModalThumbnails = index => {
@@ -152,7 +200,7 @@ useEffect(() => {
 
   return (
     <>
-      <div className="product-gallery-wrapper">
+      <div className="product-gallery-wrapper" ref={galleryRef}>
         {/* Thumbnail strip */}
         {thumbsLoaded && (
           <div className="thumbnail-list" role="list">

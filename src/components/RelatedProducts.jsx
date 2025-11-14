@@ -112,50 +112,68 @@ const HorizontalRelatedProducts = memo(({ productId }) => {
 
       try {
         const product = await getProductById(productId);
-        if (!product) return;
+        if (!product) {
+          console.log('❌ Product not found');
+          setRelatedProducts([]);
+          return;
+        }
+
+        console.log('✅ Product loaded:', product.name, 'Categories:', product.categories);
 
         let allRelated = [];
 
-        // 1️⃣ Quick related products fetch (limit for speed)
-        if (product.related_ids?.length) {
+        // 1️⃣ Try to get products from same categories
+        if (product.categories?.length) {
           try {
-            const relatedData = await getProductsByIds(product.related_ids.slice(0, 5)); // Limit to 5
-            const relatedProducts = relatedData.filter(p => p?.id && p.id !== productId);
-            allRelated.push(...relatedProducts);
-          } catch (err) {
-            // Silent fail, continue
-          }
-        }
-
-        // 2️⃣ Fast category fetch (use only primary category)
-        if (allRelated.length < 10 && product.categories?.length) {
-          try {
-            const primaryCategory = product.categories[0]; // Use only first category for speed
-            const categoryProducts = await getProductsByCategories([primaryCategory.id], 1, 12);
+            console.log('🔍 Fetching products from categories:', product.categories.map(c => c.name));
+            const categoryIds = product.categories.map(c => c.id);
+            const categoryProducts = await getProductsByCategories(categoryIds, 1, 15);
+            console.log('📦 Category products found:', categoryProducts.length);
+            
             const filteredCategory = categoryProducts.filter(p => 
-              p.id !== productId && !allRelated.some(existing => existing.id === p.id)
+              p.id !== productId
             );
             allRelated.push(...filteredCategory);
           } catch (err) {
-            // Silent fail, continue
+            console.error('❌ Category fetch error:', err);
           }
         }
 
-        // 3️⃣ Quick fallback if still not enough
+        // 2️⃣ If not enough from categories, get popular products
         if (allRelated.length < 8) {
           try {
-            const quickFallback = await fetchAPI('/products?per_page=10&orderby=total_sales&order=desc');
-            const fallbackFiltered = quickFallback.filter(p => 
+            console.log('🔍 Fetching popular products as fallback');
+            const popularProducts = await fetchAPI('/products?per_page=12&orderby=popularity&order=desc');
+            console.log('📦 Popular products found:', popularProducts.length);
+            
+            const fallbackFiltered = popularProducts.filter(p => 
               p.id !== productId && !allRelated.some(existing => existing.id === p.id)
             );
             allRelated.push(...fallbackFiltered);
           } catch (err) {
-            // Silent fail, continue
+            console.error('❌ Popular products fetch error:', err);
           }
         }
 
-        // Quick finish - take first 10, no complex sorting
+        // 3️⃣ If still not enough, get latest products
+        if (allRelated.length < 8) {
+          try {
+            console.log('🔍 Fetching latest products as final fallback');
+            const latestProducts = await fetchAPI('/products?per_page=12&orderby=date&order=desc');
+            console.log('📦 Latest products found:', latestProducts.length);
+            
+            const latestFiltered = latestProducts.filter(p => 
+              p.id !== productId && !allRelated.some(existing => existing.id === p.id)
+            );
+            allRelated.push(...latestFiltered);
+          } catch (err) {
+            console.error('❌ Latest products fetch error:', err);
+          }
+        }
+
+        // Take first 10 unique products
         const finalProducts = allRelated.slice(0, 10);
+        console.log('✅ Final related products count:', finalProducts.length);
 
         setRelatedProducts(finalProducts);
       } catch (err) {
@@ -260,9 +278,9 @@ const HorizontalRelatedProducts = memo(({ productId }) => {
   return (
     <>
       <div className="horizontal-related-wrapper">
-        <h2 className="hr-heading">Similar Products</h2>
+        <h2 className="hr-heading">Related Products</h2>
         <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px', marginTop: '-10px' }}>
-          Products from the same categories and with similar tags
+          You may also like these products
         </p>
         <div className="horizontal-related-list">
           {relatedProducts.map((prod) => {

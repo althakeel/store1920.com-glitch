@@ -25,11 +25,11 @@ import Product6 from '../../../assets/images/staticproducts/Peeler/1.webp'
 
 
 const PAGE_SIZE = 10;
-const INITIAL_VISIBLE = 20;
-const PRODUCT_FETCH_LIMIT = 8;
+const INITIAL_VISIBLE = 24;
+const PRODUCT_FETCH_LIMIT = 24;
 const RECOMMENDED_CATEGORY_LIMIT = 8;
 const CATEGORY_PAGE_LIMIT = 4;
-const MAX_PRODUCTS = 180;
+const MAX_PRODUCTS = 580;
 
 
 // Utility to decode HTML entities
@@ -75,7 +75,8 @@ const shuffleArray = (array) => {
   return arr;
 };
 
-// Static Products
+
+// Static Products with categories property
 const staticProducts = [
   {
     id: "68V Cordless Portable Car Wash Pressure Washer Gun with Dual",
@@ -88,99 +89,106 @@ const staticProducts = [
     path: "/products/68v-cordless-portable-car-wash-pressure-washer-gun-with-dual",
     rating: 4,
     reviews: 18,
-    sold: 120
+    sold: 120,
+    categories: [29688, 498, 6531], // Recommended, Electronics & Smart, Automotive & Motorcycle
   },
-    {
+  {
     id: "twin-size-air-mattress-with-built-in-rechargeable-pump-16-self-inflating-blow-up-bed-for-home-camping-guests",
     name: "Twin Size Air Mattress with Built-in Rechargeable Pump – 16 Self-Inflating Blow Up Bed for Home, Camping & Guests",
     price: "139.00",
     regular_price: "189.0",
     sale_price: "139.00",
-    images: [{ src:Product2 }],
+    images: [{ src: Product2 }],
     slug: "twin-size-air-mattress-with-built-in-rechargeable-pump-16-self-inflating-blow-up-bed-for-home-camping-guests",
     path: "/products/twin-size-air-mattress-with-built-in-rechargeable-pump-16-self-inflating-blow-up-bed-for-home-camping-guests",
     rating: 5,
     reviews: 45,
     sold: 135,
+    categories: [29688, 6528], // Recommended, Baby, Kids & Maternity
   },
-   {
+  {
     id: "850w-electric-paint-sprayer-uae",
     name: "Electric Paint Sprayer",
     price: "89.99",
     regular_price: "250.0",
     sale_price: "89.99",
-    images: [{ src:Product3 }],
+    images: [{ src: Product3 }],
     slug: "850w-electric-paint-sprayer-uae",
     path: "/products/850w-electric-paint-sprayer-uae",
     rating: 5,
     reviews: 159,
     sold: 195,
+    categories: [29688, 6520], // Recommended, Home Improvement & Tools
   },
-     {
+  {
     id: "5",
     name: "TrimPro™ 21V Cordless Electric Pruning Shears",
     price: "109.9",
     regular_price: "250.0",
     sale_price: "109.9",
-    images: [{ src:Product4 }],
+    images: [{ src: Product4 }],
     slug: "trimpro-21v-cordless-electric-pruning-shears",
     path: "/products/trimpro-21v-cordless-electric-pruning-shears",
     rating: 5,
     reviews: 169,
     sold: 225,
+    categories: [29688, 6520], // Recommended, Home Improvement & Tools
   },
-     {
+  {
     id: "6",
     name: "GameBox 64 Retro Console – 20,000+ Preloaded Games with 4K HDMI & Wireless Controllers",
     price: "96.00",
     regular_price: "96.0",
     sale_price: "69.99",
-    images: [{ src:Product5 }],
+    images: [{ src: Product5 }],
     slug: "gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllerse",
     path: "/products/gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllers",
     rating: 5,
     reviews: 110,
     sold: 185,
+    categories: [29688, 498], // Recommended, Electronics & Smart
   },
-       {
+  {
     id: "7",
     name: "Cordless 2-in-1 Leaf Blower & Vacuum",
     price: "55.90",
     regular_price: "189.00",
     sale_price: "55.90",
-    images: [{ src:Product7 }],
+    images: [{ src: Product7 }],
     slug: "cordless-2-in-1-leaf-blower-vacuum",
     path: "/products/cordless-2-in-1-leaf-blower-vacuum",
     rating: 5,
     reviews: 195,
     sold: 285,
+    categories: [29688, 6531], // Recommended, Automotive & Motorcycle
   },
-
-      {
+  {
     id: "8",
- name: "Turbo Cordless Leaf Blower – 21V Power for Every Task",
+    name: "Turbo Cordless Leaf Blower – 21V Power for Every Task",
     price: "49.90",
     regular_price: "99.98",
     sale_price: "49.90",
-    images: [{ src:Product8 }],
+    images: [{ src: Product8 }],
     slug: "turbo-cordless-leaf-blower-21v-power-for-every-task",
     path: "/products/turbo-cordless-leaf-blower-21v-power-for-every-task",
     rating: 5,
     reviews: 125,
     sold: 299,
+    categories: [29688, 6531], // Recommended, Automotive & Motorcycle
   },
-     {
+  {
     id: "9",
     name: "Steam Cleaner DF-A001 – Japan Technology",
     price: "89.90",
     regular_price: "129.98",
     sale_price: "89.90",
-    images: [{ src:Product9 }],
+    images: [{ src: Product9 }],
     slug: "steam-cleaner-df-a001-japan-technology",
     path: "/products/steam-cleaner-df-a001-japan-technology",
     rating: 5,
     reviews: 125,
-    sold: 299,   
+    sold: 299,
+    categories: [29688, 6519], // Recommended, Home Appliances
   },
   {
     id: "10",
@@ -188,17 +196,21 @@ const staticProducts = [
     price: "89.00",
     regular_price: "100.00",
     sale_price: "89.0",
-    images: [{ src:Product6 }],
+    images: [{ src: Product6 }],
     slug: "electric-grape-garlic-peeling-machine",
     path: "/products/electric-grape-garlic-peeling-machine",
     rating: 5,
     reviews: 199,
     sold: 305,
+    categories: [29688, 6519], // Recommended, Home Appliances
   },
 ];
  
 
 const staticPositions = [2,5, 11, 15, 19, 24,28, 32, 39,22,];
+
+// In-memory cache for API products by category
+const apiProductCache = {};
 
 const ProductCategory = () => {
   // Static category list (name, id)
@@ -221,6 +233,7 @@ const ProductCategory = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isHomePage = location.pathname === "/";
+  // Ref for cart icon for flyToCart
 
   // Static category list will be used below
 
@@ -237,15 +250,12 @@ const ProductCategory = () => {
   const [allProducts, setAllProducts] = useState([]); // fetched products
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
   const [loadingProducts, setLoadingProducts] = useState(false);
-  const [apiLoaded, setApiLoaded] = useState(false); // for recommended: has user loaded API products?
+  const [showingStaticOnly, setShowingStaticOnly] = useState(false);
+  // No need for apiLoaded state anymore
   // For 'Recommended', hasMoreProducts should consider both API and static products
   const getTotalProducts = () => {
     if (selectedCategoryId === "29688") {
-      if (apiLoaded) {
-        return allProducts.length + staticProducts.length;
-      } else {
-        return staticProducts.length;
-      }
+      return allProducts.length + staticProducts.length;
     }
     return allProducts.length;
   };
@@ -277,28 +287,38 @@ const [categoryHasMore, setCategoryHasMore] = useState(true);
   // Fetch only id and images for initial grid
   const fetchProducts = useCallback(async (categoryId) => {
     setVisibleCount(INITIAL_VISIBLE);
-    setAllProducts([]);
     setLoadingProducts(true);
+    // If cached, use cache instantly
+    if (apiProductCache[categoryId]) {
+      setAllProducts(apiProductCache[categoryId]);
+      setLoadingProducts(false);
+      setShowingStaticOnly(false);
+      return;
+    }
+    // Show static products instantly while API loads
+    setAllProducts([]);
+    setShowingStaticOnly(true);
     try {
       let fetchedProducts = [];
       let page = 1;
-      while (page <= CATEGORY_PAGE_LIMIT && fetchedProducts.length < MAX_PRODUCTS) {
+      while (true) {
         const res = await fetch(
-          `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCT_FETCH_LIMIT}&page=${page}&category=${categoryId}&_fields=id,images,categories,slug`
+          `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCT_FETCH_LIMIT}&page=${page}&category=${categoryId}&_fields=id,name,price,regular_price,sale_price,images,categories,slug`
         );
         const data = await res.json();
         if (!Array.isArray(data) || !data.length) break;
-        if (String(categoryId) === "29688") {
-          fetchedProducts.push(...data.filter(p => Array.isArray(p.categories) && p.categories.some(cat => String(cat.id) === "29688")));
-        } else {
-          fetchedProducts.push(...data);
-        }
+        fetchedProducts.push(...data);
+        if (data.length < PRODUCT_FETCH_LIMIT) break; // Last page
         page++;
+        if (fetchedProducts.length >= MAX_PRODUCTS) break;
       }
       fetchedProducts = fetchedProducts.slice(0, MAX_PRODUCTS);
       if (fetchedProducts.length > 0) {
-        setAllProducts(shuffleArray(fetchedProducts));
+        const shuffled = shuffleArray(fetchedProducts);
+        apiProductCache[categoryId] = shuffled;
+        setAllProducts(shuffled);
       } else {
+        apiProductCache[categoryId] = [];
         setAllProducts([]);
       }
     } catch (err) {
@@ -306,28 +326,19 @@ const [categoryHasMore, setCategoryHasMore] = useState(true);
       setAllProducts([]);
     } finally {
       setLoadingProducts(false);
+      setShowingStaticOnly(false);
     }
   }, []);
 
   // Initial fetch
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE);
-    if (selectedCategoryId !== "29688") {
-      fetchProducts(selectedCategoryId);
-      setApiLoaded(true);
+    if (selectedCategoryId === "29688") {
+      fetchProducts("29688");
     } else {
-      setAllProducts([]);
-      setApiLoaded(false);
+      fetchProducts(selectedCategoryId);
     }
   }, [selectedCategoryId, fetchProducts]);
-
-  // Handler to load API products for Recommended
-  const handleLoadApiProducts = async () => {
-    setLoadingProducts(true);
-    await fetchProducts("29688");
-    setApiLoaded(true);
-    setLoadingProducts(false);
-  };
 
   // Arrow visibility for categories scroll
   const updateArrowVisibility = useCallback(() => {
@@ -409,15 +420,28 @@ const handleProductClick = async (product) => {
   }
 };
 
+
+// Merge static products for the selected category
 const getMergedProducts = () => {
-  const merged = [...allProducts];
-  staticPositions.forEach((pos, i) => {
-    if (i < staticProducts.length) {
-      const insertPos = Math.min(pos, merged.length); // safe position
-      merged.splice(insertPos, 0, { ...staticProducts[i], isStatic: true });
-    }
-  });
-  return merged;
+  // Find static products that belong to the selected category
+  const staticForCategory = staticProducts.filter(p =>
+    Array.isArray(p.categories) && p.categories.includes(Number(selectedCategoryId))
+  ).map(p => ({ ...p, isStatic: true }));
+
+  // For Recommended, use staticPositions to interleave, else just append static products
+  if (selectedCategoryId === "29688") {
+    const merged = [...allProducts];
+    staticPositions.forEach((pos, i) => {
+      if (i < staticForCategory.length) {
+        const insertPos = Math.min(pos, merged.length);
+        merged.splice(insertPos, 0, staticForCategory[i]);
+      }
+    });
+    return merged;
+  } else {
+    // For other categories, append static products at the end
+    return [...allProducts, ...staticForCategory];
+  }
 };
 
 
@@ -443,20 +467,62 @@ useEffect(() => {
   return () => timeouts.forEach(clearTimeout);
 }, [allProducts, visibleCount, selectedCategoryId]);
 
+// --- Hover and image loaded state management moved to parent ---
+const [secondImageLoaded, setSecondImageLoaded] = React.useState({});
+const [hoveredCards, setHoveredCards] = React.useState({});
+
+const handleSecondImageLoad = (id) => {
+  setSecondImageLoaded(prev => ({ ...prev, [id]: true }));
+};
+const handleMouseEnter = (id) => {
+  setHoveredCards(prev => ({ ...prev, [id]: true }));
+};
+const handleMouseLeave = (id) => {
+  setHoveredCards(prev => ({ ...prev, [id]: false }));
+};
+
 const renderProducts = (productsToShowParam) => {
-  // Accept productsToShow as a parameter for instant rendering
   let productsToShow = productsToShowParam;
-  // Ensure visibleCount does not exceed productsToShow length
   const count = Math.min(visibleCount, productsToShow.length);
   return productsToShow.slice(0, count).map((p, index) => {
     const hasSale = p.sale_price && p.sale_price !== p.regular_price;
+    const hasSecondImage = p.images && p.images.length > 1 && typeof p.images[1]?.src === 'string' && p.images[1]?.src.trim() !== '';
+    const hovered = hoveredCards[p.id] || false;
     // Static product card
     if (p.isStatic) {
+      // Always allow hover, and switch to 2nd image when available
+      const handleEnter = () => handleMouseEnter(p.id);
+      const handleLeave = () => handleMouseLeave(p.id);
+      // On hover, if second image is loaded, show it; otherwise keep showing first image
+      let imageToShow = p.images[0]?.src || PlaceholderImage;
+      if (hovered && hasSecondImage && p.images[1]?.src && secondImageLoaded[p.id]) {
+        imageToShow = p.images[1].src;
+      }
       return (
-        <div key={p.id} className="pcus-prd-card static-product-card" onClick={() => handleProductClick(p)} style={{ cursor: "pointer", position: "relative" }}>
+        <div
+          key={p.id}
+          className="pcus-prd-card static-product-card"
+          onClick={() => handleProductClick(p)}
+          style={{ cursor: "pointer", position: "relative" }}
+          onMouseEnter={handleEnter}
+          onMouseLeave={handleLeave}
+        >
           <div style={{ position: "absolute", top: "8px", right: "8px", backgroundColor: "#ff6207", color: "#fff", fontSize: "10px", fontWeight: "bold", padding: "2px 6px", borderRadius: "4px", zIndex: 2 }}>Fast Moving</div>
-          <div className="pcus-image-wrapper" style={{ position: "relative" }}>
-            <img src={p.images[0].src} alt={decodeHTML(p.name)} className="pcus-prd-image1 primary-img" />
+          <div className="pcus-image-wrapper" style={{ position: "relative", pointerEvents: "none" }}>
+            <img
+              src={imageToShow}
+              alt={decodeHTML(p.name)}
+              className="pcus-prd-image1 primary-img"
+              onLoad={() => {
+                if (hasSecondImage && !secondImageLoaded[p.id]) {
+                  // Preload second image
+                  const img = new window.Image();
+                  img.src = p.images[1].src;
+                  img.onload = () => handleSecondImageLoad(p.id);
+                }
+              }}
+              style={{ transition: 'opacity 0.3s ease-in-out', display: 'block', width: '100%' }}
+            />
           </div>
           <div className="pcus-prd-info12">
             <h2 className="pcus-prd-title1">{decodeHTML(p.name)}</h2>
@@ -486,14 +552,114 @@ const renderProducts = (productsToShowParam) => {
         </div>
       );
     }
-    // Regular product card (no new badges)
-    return (
-      <div key={p.id} className="pcus-prd-card" onClick={() => handleProductClick(p)} style={{ cursor: "pointer", position: "relative" }}>
-        <div className="pcus-image-wrapper1">
-          <img src={p.images?.[0]?.src || PlaceholderImage} alt={decodeHTML(p.name || p.slug)} className="pcus-prd-image1 primary-img" loading={index === 0 ? "eager" : "lazy"} decoding="auto" />
+  // API product card (show price, sale, Buy Now, etc.)
+  // Always allow hover, and switch to 2nd image when available
+  const handleEnter = () => handleMouseEnter(p.id);
+  const handleLeave = () => handleMouseLeave(p.id);
+  // On hover, if second image is loaded, show it; otherwise keep showing first image
+  let imageToShow = p.images?.[0]?.src || PlaceholderImage;
+  if (hovered && hasSecondImage && p.images[1]?.src && secondImageLoaded[p.id]) {
+    imageToShow = p.images[1].src;
+  }
+  return (
+      <div
+        key={p.id}
+        className="pcus-prd-card"
+        style={{ cursor: "pointer", position: "relative" }}
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
+      >
+  <div className="pcus-image-wrapper1" onClick={() => handleProductClick(p)} style={{ pointerEvents: "none" }}>
+          <img
+            src={imageToShow}
+            alt={decodeHTML(p.name || p.slug)}
+            className="pcus-prd-image1 primary-img"
+            loading={index === 0 ? "eager" : "lazy"}
+            decoding="auto"
+            onLoad={() => {
+              if (hasSecondImage && !secondImageLoaded[p.id]) {
+                // Preload second image
+                const img = new window.Image();
+                img.src = p.images[1].src;
+                img.onload = () => handleSecondImageLoad(p.id);
+              }
+            }}
+            style={{ transition: 'opacity 0.3s ease-in-out', display: 'block', width: '100%' }}
+          />
         </div>
         <div className="pcus-prd-info12">
-          <h2 className="pcus-prd-title1">{decodeHTML(p.name || p.slug)}</h2>
+          <h2 className="pcus-prd-title1" onClick={() => handleProductClick(p)}>{decodeHTML(p.name || p.slug)}</h2>
+          {showFull[index] && (
+            <>
+              <div className="pcus-prd-dummy-reviews" style={{ display: "flex", alignItems: "center", margin: "0px 5px" }}>
+                {/* API products may not have rating/reviews/sold, so show 0 or blank if missing */}
+                <div style={{ color: "#FFD700", marginRight: "8px" }}>{"★".repeat(Number(p.rating) || 0)}{"☆".repeat(5 - (Number(p.rating) || 0))}</div>
+                <div style={{ fontSize: "12px", color: "#666", marginRight: "8px" }}>({p.reviews || 0})</div>
+                <div style={{ fontSize: "12px", color: "#666" }}>{p.sold || ''}{p.sold ? ' sold' : ''}</div>
+              </div>
+              <div style={{ height: "1px", width: "100%", backgroundColor: "lightgrey", margin: "0px 0 2px 0", borderRadius: "1px" }} />
+              <div className="prc-row-abc123" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 8px' }}>
+                <div className="prc-left-abc123" style={{ display: 'flex', alignItems: 'center', padding: '0 4px' }}>
+                  <img src={IconAED} alt="AED" style={{ width: "auto", height: "12px", marginRight: "0px", verticalAlign: "middle" }} />
+                  <Price value={p.sale_price || p.price} className="prc-sale-abc123" />
+                  <Price value={p.regular_price} className="prc-regular-abc123" />
+                  {p.sale_price && p.regular_price && p.sale_price < p.regular_price && (
+                    <span className="prc-off-abc123">{Math.round(((p.regular_price - p.sale_price) / p.regular_price) * 100)}% Off</span>
+                  )}
+                </div>
+                <button
+                  className="prc-cart-btn-abc123"
+                  style={{
+                    background: '#fff',
+                    border: '2px solid #eee',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    padding: 0,
+                    position: 'relative',
+                    width: '38px',
+                    height: '38px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  }}
+                  title="Add to Cart"
+                  ref={cartIconRef}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    flyToCart(e, p.images?.[0]?.src);
+                    if (addToCart) addToCart(p);
+                  }}
+                >
+                  <img src={cartItems.some(item => item.id === p.id) ? AddedToCartIcon : AddCarticon} alt="Add to Cart" style={{ width: '20px', height: '20px' }} />
+                  {cartItems.some(item => item.id === p.id) && (
+                    <span
+                      className="cart-count-badge"
+                      style={{
+                        position: 'absolute',
+                        top: '-6px',
+                        right: '-6px',
+                        background: '#ff6207',
+                        color: '#fff',
+                        borderRadius: '50%',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        minWidth: '18px',
+                        height: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 2,
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.15)'
+                      }}
+                    >
+                      {cartItems.find(item => item.id === p.id)?.quantity || 1}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </>
+          )}
           {loadingProductId === p.id ? (
             <div style={{ color: '#ff6207', fontSize: '13px', margin: '8px 0' }}>Loading details...</div>
           ) : null}
@@ -531,34 +697,31 @@ useEffect(() => {
 
         {/* Products */}
         {(() => {
-          // For 'Recommended', show only static products instantly, load API products on demand
+          // Show static products instantly while API loads
           let productsToShow = [];
-          if (selectedCategoryId === "29688") {
-            if (!apiLoaded) {
-              // Show only static products instantly
-              productsToShow = staticProducts.map((p) => ({ ...p, isStatic: true }));
-            } else if (loadingProducts) {
-              // Show skeletons while loading API products
+          if (showingStaticOnly) {
+            // Only static products for this category, then skeletons for API loading
+            const staticForCategory = staticProducts.filter(p =>
+              Array.isArray(p.categories) && p.categories.includes(Number(selectedCategoryId))
+            ).map(p => ({ ...p, isStatic: true }));
+            if (staticForCategory.length === 0) {
               return (
-                <div className="pcus-prd-grid001">
-                  {Array(10).fill(0).map((_, idx) => <SkeletonCard key={idx} />)}
-                </div>
-              );
-            } else {
-              // Show merged API + static products
-              productsToShow = getMergedProducts();
-            }
-          } else {
-            if (loadingProducts) {
-              // Show skeletons for non-Recommended categories
-              return (
-                <div className="pcus-prd-grid001">
-                  {Array(10).fill(0).map((_, idx) => <SkeletonCard key={idx} />)}
+                <div className="pcus-no-products" style={{ minHeight: "300px", textAlign: "center", paddingTop: "40px", fontSize: "18px", color: "#666" }}>
+                  No products found.
                 </div>
               );
             }
-            productsToShow = allProducts;
+            // Show 6 skeletons after static products
+            const skeletons = Array(6).fill(0).map((_, idx) => <SkeletonCard key={"skel-"+idx} />);
+            return (
+              <div className="pcus-prd-grid001">
+                {renderProducts(staticForCategory)}
+                {skeletons}
+              </div>
+            );
           }
+          // After API loaded, show merged API + static products for all categories
+          productsToShow = getMergedProducts();
           if (productsToShow.length === 0) {
             return (
               <div className="pcus-no-products" style={{ minHeight: "300px", textAlign: "center", paddingTop: "40px", fontSize: "18px", color: "#666" }}>
@@ -566,29 +729,7 @@ useEffect(() => {
               </div>
             );
           }
-          return <>
-            <div className="pcus-prd-grid001">{renderProducts(productsToShow)}</div>
-            {/* Show More button for Recommended */}
-            {selectedCategoryId === "29688" && !apiLoaded && (
-              <div style={{ textAlign: "center", margin: "24px 0" }}>
-                <button
-                  className="pcus-load-more-btn"
-                  onClick={handleLoadApiProducts}
-                  style={{
-                    padding: "10px 20px",
-                    fontSize: "14px",
-                    backgroundColor: "#ff6207ff",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "50px",
-                    cursor: "pointer"
-                  }}
-                >
-                  Show More Products
-                </button>
-              </div>
-            )}
-          </>;
+          return <div className="pcus-prd-grid001">{renderProducts(productsToShow)}</div>;
         })()}
 
         {/* Load More */}
@@ -614,7 +755,7 @@ useEffect(() => {
           )}
         </div>
       </div>
-      <MiniCart />
+  <MiniCart ref={cartIconRef} />
     </div>
   );
 };

@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CookieConsentProvider } from './contexts/CookieConsentContext';
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ThemeProvider } from './contexts/ThemeContext';
+import FirebaseAuthSync from './components/FirebaseAuthSync';
 
 // Pages
 import Home from './pages/Home';
@@ -255,6 +256,7 @@ const AppContent = () => {
 <GoogleOAuthProvider clientId={CLIENT_ID}>
           <QueryClientProvider client={queryClient}>
           <AuthProvider>
+            <FirebaseAuthSync />
             <>
               {!isMobile && <Topbar />}
               {onCheckoutPage ? (

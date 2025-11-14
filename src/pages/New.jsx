@@ -247,10 +247,43 @@ const New = () => {
 
           <button
             className={`pcus-prd-add-cart-btn10 ${cartItems.some(item => item.id === p.id) ? 'added-to-cart' : ''}`}
-            onClick={(e) => { e.stopPropagation(); flyToCart(e, p.images?.[0]?.src); addToCart(p, true); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              flyToCart(e, p.images?.[0]?.src);
+              addToCart(p, true);
+            }}
             aria-label={`Add ${decodeHTML(p.name)} to cart`}
+            style={{ position: 'relative' }}
           >
-            <img src={cartItems.some(item => item.id === p.id) ? AddedToCartIcon : AddCarticon} alt="Add to cart" className="pcus-prd-add-cart-icon-img" />
+            <img
+              src={cartItems.some(item => item.id === p.id) ? AddedToCartIcon : AddCarticon}
+              alt="Add to cart"
+              className="pcus-prd-add-cart-icon-img"
+            />
+            {cartItems.some(item => item.id === p.id) && (
+              <span
+                className="cart-count-badge"
+                style={{
+                  position: 'absolute',
+                  top: '-6px',
+                  right: '-6px',
+                  background: '#ff6207',
+                  color: '#fff',
+                  borderRadius: '50%',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  minWidth: '18px',
+                  height: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 2,
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.15)'
+                }}
+              >
+                {cartItems.find(item => item.id === p.id)?.quantity || 1}
+              </span>
+            )}
           </button>
         </div>
       </div>

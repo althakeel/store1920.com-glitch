@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/styles/New.css';
 import { useCart } from '../contexts/CartContext';
@@ -15,6 +15,7 @@ const TOPSELLING_CATEGORY_ID = 29686;
 
 const PRODUCTS_PER_PAGE = 24;
 const TITLE_LIMIT = 35;
+const INITIAL_LOAD = 12; // Load only 12 products initially for faster LCP
 
 // ===================== Utility functions =====================
 const decodeHTML = (html) => {
@@ -39,18 +40,18 @@ const SkeletonCard = () => (
 // ===================== Main Component =====================
 const New = () => {
   // For deferred review loading (LCP optimization)
-  const [showReviews, setShowReviews] = useState([]);
+  const [showReviews, setShowReviews] = useState(new Set([0, 1, 2, 3])); // Show first 4 immediately
   const navigate = useNavigate();
   const { addToCart, cartItems } = useCart();
   const cartIconRef = useRef(null);
 
   const [products, setProducts] = useState([]);
   const [variationPrices, setVariationPrices] = useState({});
-  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [currencySymbol, setCurrencySymbol] = useState('AED');
   const [productsPage, setProductsPage] = useState(1);
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
-  const [bestSellerIds, setBestSellerIds] = useState([]);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
 
 
@@ -72,14 +73,26 @@ const New = () => {
   }, []);
 
 
-  // ===================== Fetch products from 'topselling' category only =====================
+  // ===================== Fetch products OPTIMIZED =====================
   const fetchProducts = useCallback(async (page = 1) => {
     setLoadingProducts(true);
     try {
-      const data = await getProductsByCategory(TOPSELLING_CATEGORY_ID, page, PRODUCTS_PER_PAGE);
+      const perPage = page === 1 ? INITIAL_LOAD : PRODUCTS_PER_PAGE;
+      const data = await getProductsByCategory(TOPSELLING_CATEGORY_ID, page, perPage);
       const validData = Array.isArray(data) ? data : [];
+      
       setProducts(prev => page === 1 ? validData : [...prev, ...validData]);
-      setHasMoreProducts(validData.length >= PRODUCTS_PER_PAGE);
+      setHasMoreProducts(validData.length >= perPage);
+      
+      if (page === 1) {
+        setInitialLoadDone(true);
+        // Load remaining products in background after initial render
+        setTimeout(() => {
+          if (validData.length >= INITIAL_LOAD) {
+            fetchMoreInBackground();
+          }
+        }, 100);
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
       setProducts([]);
@@ -89,6 +102,17 @@ const New = () => {
     }
   }, []);
 
+  // Background fetch for remaining first page products
+  const fetchMoreInBackground = async () => {
+    try {
+      const data = await getProductsByCategory(TOPSELLING_CATEGORY_ID, 1, PRODUCTS_PER_PAGE);
+      const validData = Array.isArray(data) ? data : [];
+      setProducts(validData);
+    } catch (error) {
+      console.error('Error fetching more products:', error);
+    }
+  };
+
 
 
   useEffect(() => {
@@ -96,9 +120,10 @@ const New = () => {
     setProductsPage(1);
   }, [fetchProducts]);
 
-  // Defer reviews for all but the first product for LCP
+  // Defer reviews progressively - optimized
   useEffect(() => {
-    // Calculate visible products
+    if (!initialLoadDone || products.length === 0) return;
+    
     const filtered = products.filter(p => {
       const hasImage = Array.isArray(p.images) && p.images.length > 0 && p.images[0]?.src;
       const isVariable = p.type === 'variable';
@@ -106,31 +131,54 @@ const New = () => {
       const price = isVariable ? variationPriceInfo.price : p.price || p.regular_price || 0;
       return hasImage && parseFloat(price) > 0;
     });
-    const visible = filtered.slice(0, productsPage * PRODUCTS_PER_PAGE);
 
-    // Set up review delays
-    let timeouts = [];
-    setShowReviews(visible.map((_, i) => i === 0));
-    for (let i = 1; i < visible.length; ++i) {
-      timeouts.push(setTimeout(() => {
-        setShowReviews(prev => {
-          const next = [...prev];
-          next[i] = true;
-          return next;
-        });
-      }, 600 + i * 40));
+    // Show reviews gradually - much faster
+    const timeout = setTimeout(() => {
+      const newSet = new Set(showReviews);
+      for (let i = 4; i < Math.min(filtered.length, 24); i++) {
+        newSet.add(i);
+      }
+      setShowReviews(newSet);
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [initialLoadDone, products.length]);
+
+  // Optimized variation price fetching - only fetch visible products
+  useEffect(() => {
+    if (!products || products.length === 0) return;
+    
+    const visibleProducts = products.slice(0, PRODUCTS_PER_PAGE);
+    const variableProducts = visibleProducts.filter(p => p.type === 'variable' && !variationPrices[p.id]);
+    
+    // Batch fetch variations - max 5 at a time to avoid overwhelming
+    const batchSize = 5;
+    for (let i = 0; i < variableProducts.length; i += batchSize) {
+      const batch = variableProducts.slice(i, i + batchSize);
+      setTimeout(() => {
+        batch.forEach(p => fetchFirstVariationPrice(p.id));
+      }, i * 100); // Stagger batches
     }
-    return () => timeouts.forEach(clearTimeout);
-  }, [products, variationPrices, productsPage]);
+  }, [products.length]);
 
-  // Optimized Load More: show skeletons instantly, fetch in background
-  const loadMoreProducts = () => {
+  // Memoize filtered products
+  const filteredProducts = useMemo(() => {
+    return products.filter(p => {
+      const hasImage = Array.isArray(p.images) && p.images.length > 0 && p.images[0]?.src;
+      const isVariable = p.type === 'variable';
+      const variationPriceInfo = variationPrices[p.id] || {};
+      const price = isVariable ? variationPriceInfo.price : p.price || p.regular_price || 0;
+      return hasImage && parseFloat(price) > 0;
+    });
+  }, [products, variationPrices]);
+
+  // Optimized Load More
+  const loadMoreProducts = useCallback(() => {
     if (!hasMoreProducts || loadingProducts) return;
     const nextPage = productsPage + 1;
     setProductsPage(nextPage);
-    // Show skeletons instantly for next page
     setLoadingProducts(true);
-    // Fetch next page in background and append as soon as ready
+    
     getProductsByCategory(TOPSELLING_CATEGORY_ID, nextPage, PRODUCTS_PER_PAGE)
       .then((data) => {
         const validData = Array.isArray(data) ? data : [];
@@ -144,27 +192,10 @@ const New = () => {
       .finally(() => {
         setLoadingProducts(false);
       });
-  };
+  }, [hasMoreProducts, loadingProducts, productsPage]);
 
-  // ===================== Handle product click =====================
-  const onProductClick = useCallback((slug, id) => {
-    let recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
-    recent = recent.filter((rid) => rid !== id);
-    recent.unshift(id);
-    localStorage.setItem('recentProducts', JSON.stringify(recent.slice(0, 5)));
-    window.open(`/product/${slug}`, '_blank', 'noopener,noreferrer');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
-
-  // ===================== Fetch first variation prices =====================
-  useEffect(() => {
-    if (!products || products.length === 0) return;
-    products.forEach((p) => {
-      if (p.type === 'variable' && !variationPrices[p.id]) fetchFirstVariationPrice(p.id);
-    });
-  }, [products]);
-
-  const fetchFirstVariationPrice = async (productId) => {
+  // ===================== Fetch first variation prices - OPTIMIZED =====================
+  const fetchFirstVariationPrice = useCallback(async (productId) => {
     try {
       const variation = await getFirstVariation(productId);
       if (variation) {
@@ -180,10 +211,23 @@ const New = () => {
     } catch (error) {
       console.error(`Failed to fetch variation for product ${productId}:`, error);
     }
-  };
+  }, []);
 
-  // ===================== Fly to cart animation =====================
-  const flyToCart = (e, imgSrc) => {
+  // ===================== Handle product click =====================
+  const onProductClick = useCallback((slug, id) => {
+    try {
+      let recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
+      recent = recent.filter((rid) => rid !== id);
+      recent.unshift(id);
+      localStorage.setItem('recentProducts', JSON.stringify(recent.slice(0, 5)));
+    } catch (e) {
+      console.error('Error updating recent products:', e);
+    }
+    window.open(`/product/${slug}`, '_blank', 'noopener,noreferrer');
+  }, []);
+
+  // ===================== Fly to cart animation - OPTIMIZED =====================
+  const flyToCart = useCallback((e, imgSrc) => {
     if (!cartIconRef.current || !imgSrc) return;
 
     const cartRect = cartIconRef.current.getBoundingClientRect();
@@ -198,21 +242,23 @@ const New = () => {
       height: '60px',
       top: `${startRect.top}px`,
       left: `${startRect.left}px`,
-      transition: 'all 0.7s ease-in-out',
+      transition: 'all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       borderRadius: '50%',
       pointerEvents: 'none',
     });
     document.body.appendChild(clone);
 
     requestAnimationFrame(() => {
-      clone.style.top = `${cartRect.top}px`;
-      clone.style.left = `${cartRect.left}px`;
-      clone.style.opacity = '0';
-      clone.style.transform = 'scale(0.2)';
+      requestAnimationFrame(() => {
+        clone.style.top = `${cartRect.top}px`;
+        clone.style.left = `${cartRect.left}px`;
+        clone.style.opacity = '0';
+        clone.style.transform = 'scale(0.2)';
+      });
     });
 
-    setTimeout(() => clone.remove(), 800);
-  };
+    setTimeout(() => clone.remove(), 750);
+  }, []);
   
 // ===================== Shuffle utility =====================
 const shuffleArray = (array) => {
@@ -266,31 +312,22 @@ useEffect(() => {
           </div>
         ) : (
           <div className="pcus-prd-grid12">
-            {/* Show first 24 products instantly, then skeletons for rest while loading */}
-            {(() => {
-              const filtered = products.filter(p => {
-                // Exclude products with no images or price 0/0.00
-                const hasImage = Array.isArray(p.images) && p.images.length > 0 && p.images[0]?.src;
-                const isVariable = p.type === 'variable';
-                const variationPriceInfo = variationPrices[p.id] || {};
-                const price = isVariable ? variationPriceInfo.price : p.price || p.regular_price || 0;
-                return hasImage && parseFloat(price) > 0;
-              });
-              const visible = filtered.slice(0, productsPage * PRODUCTS_PER_PAGE);
-              return <>
-                {visible.map((p, idx) => {
+            {/* Render using memoized filtered products */}
+            {filteredProducts.slice(0, productsPage * PRODUCTS_PER_PAGE).map((p, idx) => {
                   const isVariable = p.type === 'variable';
                   const variationPriceInfo = variationPrices[p.id] || {};
                   const displayRegularPrice = isVariable ? variationPriceInfo.regular_price : p.regular_price || p.price;
                   const displaySalePrice = isVariable ? variationPriceInfo.sale_price : p.sale_price || null;
                   const displayPrice = isVariable ? variationPriceInfo.price : p.price || p.regular_price || 0;
                   const onSale = displaySalePrice && displaySalePrice !== displayRegularPrice;
-                  // Static badge for all products
                   const staticBadge = <div className="static-top-badge" style={{position:'absolute',top:8,right:8,background:'#1976d2',color:'#fff',fontWeight:700,fontSize:'13px',borderRadius:'5px',padding:'2px 10px',zIndex:3,boxShadow:'0 1px 4px rgba(25,118,210,0.10)',letterSpacing:'0.5px',textTransform:'uppercase'}}>Top Seller</div>;
-                  // Show orange savings/countdown badge for products with a sale price lower than regular price
                   const showSavingsBadge = displaySalePrice && displaySalePrice < displayRegularPrice;
                   const savings = showSavingsBadge ? (parseFloat(displayRegularPrice) - parseFloat(displaySalePrice)).toFixed(2) : null;
                   const countdownDemo = '11:54:08';
+                  
+                  // Optimize image loading
+                  const imgLoading = idx < 6 ? 'eager' : 'lazy';
+                  const imgDecoding = idx < 6 ? 'auto' : 'async';
                   return (
                     <div
                       key={p.id}
@@ -303,14 +340,14 @@ useEffect(() => {
                     >
                       {staticBadge}
                       <div className="pcus-image-wrapper1">
-                        <img src={p.images?.[0]?.src || ''} alt={decodeHTML(p.name)} className="pcus-prd-image1 primary-img" loading={idx < 24 ? 'eager' : 'lazy'} decoding="auto" />
+                        <img src={p.images?.[0]?.src || ''} alt={decodeHTML(p.name)} className="pcus-prd-image1 primary-img" loading={imgLoading} decoding={imgDecoding} />
                         {p.images?.[1] && <img src={p.images[1].src} alt={`${decodeHTML(p.name)} - second`} className="pcus-prd-image1 secondary-img" loading="lazy" decoding="async" />}
                         {p.stock_status === 'outofstock' && <div className="pcus-stock-overlay10 out-of-stock">Out of Stock</div>}
                         {typeof p.stock_quantity === 'number' && p.stock_quantity < 50 && <div className="pcus-stock-overlay10 low-stock">Only {p.stock_quantity} left in stock</div>}
                       </div>
                       <div className="pcus-prd-info1">
                         <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>
-                        {showReviews[idx] ? <ProductCardReviews productId={p.id} /> : <div style={{height:24}} />}
+                        {showReviews.has(idx) ? <ProductCardReviews productId={p.id} /> : <div style={{height:24}} />}
                         <div style={{ height: "1px", width: "100%", backgroundColor: "lightgrey", margin: "0px 0 2px 0", borderRadius: "1px" }} />
                         <div className="pcus-prd-price-cart1" style={{ position: 'relative' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
@@ -379,12 +416,10 @@ useEffect(() => {
                     </div>
                   );
                 })}
-                {/* Show fewer skeletons for faster perceived load */}
-                {loadingProducts && Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={`skel-${i+visible.length}`} />)}
-              </>;
-            })()}
-          </div>
-        )}
+                {/* Show fewer skeletons */}
+                {loadingProducts && Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={`skel-${i}`} />)}
+              </div>
+            )}
 
         {/* Load More */}
         {hasMoreProducts && (

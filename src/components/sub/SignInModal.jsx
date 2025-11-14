@@ -294,7 +294,10 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         </div>
 
         <div className="signin-social-icons">
-          <GoogleSignInButton onLogin={onLogin} />
+          <GoogleSignInButton onLogin={(userInfo) => {
+            onLogin?.(userInfo);
+            onClose();
+          }} />
 
           <button onClick={() => handleSocialLogin("facebook")}>
             <img src={FacebookIcon} alt="Facebook" />
