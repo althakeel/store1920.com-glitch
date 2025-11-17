@@ -36,6 +36,7 @@ import Intellectualproperty from './pages/intellectual-property-policy';
 import PrivacyPolicy from './pages/privacy-policy';
 import Terms0fuse from './pages/TermsOfuse';
 import OrderSuccess from './pages/OrderSuccess';
+import OrderCancel from './pages/OrderCancel';
 import TrackOrder from './pages/track-order';
 import Festsale from './pages/Festsale';
 import SeasonSale from './pages/seasonsale';
@@ -222,7 +223,7 @@ const AppContent = () => {
   }, [cartItems]);
 
 
-  const excludeMiniCartPaths = ['/cart', '/checkout', '/lost-password', '/order-success'];
+  const excludeMiniCartPaths = ['/cart', '/checkout', '/lost-password', '/order-success', '/order-cancel'];
 
   const shouldShowMiniCart =
     !isMobile &&
@@ -348,6 +349,7 @@ const AppContent = () => {
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-0f-use" element={<Terms0fuse />} />
                     <Route path="/order-success" element={<OrderSuccess />} />
+                    <Route path="/order-cancel" element={<OrderCancel />} />
                     <Route path="/track-order" element={<TrackOrder />} />
                     <Route path="/fest-sale" element={<Festsale />} />
                     <Route path="/season-sale" element={<SeasonSale />} />
