@@ -47,7 +47,7 @@ export default function MobileBottomNav() {
   const menuItems = [
     { path: '/', label: 'Home', icon: <FaHome /> },
     { path: '/allproducts', label: 'Shop', icon: <FaStore /> },
-    { path: '/new', label: 'New', icon: null, isCenter: true, onClick: () => navigate('/new') },
+    { path: '/fast-delivery', label: 'ShipXpress', icon: null, isCenter: true, onClick: () => navigate('/fast-delivery') },
     { path: '/category', label: 'Categories', icon: <FaTh /> },
     {
       path: isLoggedIn ? '/myaccount' : '#',
@@ -70,7 +70,7 @@ export default function MobileBottomNav() {
               key={item.label}
               className={`nav-item ${isCenter ? 'nav-center-btn' : ''} ${location.pathname === item.path ? 'active' : ''}`}
               onClick={() => (item.onClick ? item.onClick() : navigate(item.path))}
-              style={isCenter ? { background: newBtnColor } : {}}
+              style={isCenter ? { background: newBtnColor, minWidth: 120, width: 120, height: 48, borderRadius: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' } : {}}
             >
               <div className="icon-wrapper">{item.icon}</div>
               <span className="label">{item.label}</span>

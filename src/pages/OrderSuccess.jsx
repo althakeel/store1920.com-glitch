@@ -212,7 +212,7 @@ export default function OrderSuccess() {
         {/* Order Number Section */}
         <div className="order-number-section">
           <h2 className="order-id" onClick={handleCopyOrderId}>
-            #S{order.id}
+          {order.id}
           </h2>
           <p className="copy-order-text" onClick={handleCopyOrderId}>
             📋 Copy order number

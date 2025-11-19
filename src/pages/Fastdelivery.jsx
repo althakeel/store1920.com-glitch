@@ -123,145 +123,169 @@ const staticProducts = [
 
 const Fastdelivery = () => {
   const navigate = useNavigate();
+  
+  const truncateName = (name) => {
+    const isMobile = window.innerWidth <= 768;
+    const limit = isMobile ? 28 : 50;
+    return name.length > limit ? name.substring(0, limit) + "..." : name;
+  };
+
+  const isMobile = window.innerWidth <= 768;
 
   return (
-    <div style={{ background: '#ffffffff', padding: '10px 0 50px' }}>
-      {/* Section Title */}
+    <div style={{ background: '#fff', padding: '10px 0 40px' }}>
+
+      {/* TITLE */}
       <div style={{
         maxWidth: '1400px',
-        margin: '0 auto 30px',
+        margin: '0 auto 25px',
         textAlign: 'center',
       }}>
         <h2 style={{
-          fontSize: '26px',
+          fontSize: isMobile ? '20px' : '26px',
           fontWeight: '700',
           color: '#333',
-          marginBottom: '8px',
+          marginBottom: '5px',
         }}>
-         Fast Delivery Products
+          Fast Delivery Products
         </h2>
         <p style={{
           color: '#666',
-          fontSize: '15px',
+          fontSize: isMobile ? '13px' : '15px',
           margin: 0,
         }}>
           Get your top-selling items delivered in no time!
         </p>
       </div>
 
-      {/* Product Grid */}
+      {/* PRODUCT GRID */}
       <div style={{
         maxWidth: '1400px',
         margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
-        gap: '20px',
-        padding: '0 10px',
+        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(230px, 1fr))',
+        gap: isMobile ? '12px' : '20px',
+        padding: '0 12px',
       }}>
         {staticProducts.map((product) => (
           <div
             key={product.id}
+            onClick={() => navigate(product.path)}
             style={{
               position: 'relative',
               background: '#fff',
               borderRadius: '12px',
               overflow: 'hidden',
-              boxShadow: '0 3px 12px rgba(0,0,0,0.1)',
+              boxShadow: '0 3px 10px rgba(0,0,0,0.10)',
               cursor: 'pointer',
-              transition: 'transform 0.3s ease',
+              transition: 'transform 0.25s ease',
             }}
-            onClick={() => navigate(product.path)}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            onMouseEnter={(e) => !isMobile && (e.currentTarget.style.transform = 'translateY(-5px)')}
+            onMouseLeave={(e) => !isMobile && (e.currentTarget.style.transform = 'translateY(0)')}
           >
-            {/* Top Badge */}
+
+            {/* FAST MOVING BADGE */}
             <div style={{
               position: 'absolute',
-              top: '10px',
-              right: '10px',
+              top: '8px',
+              right: '8px',
               background: '#ff6b00',
               color: '#fff',
-              padding: '4px 8px',
+              padding: '3px 6px',
               borderRadius: '6px',
-              fontSize: '12px',
+              fontSize: isMobile ? '10px' : '12px',
               fontWeight: 'bold',
+              zIndex: 3
             }}>
               Fast Moving
             </div>
 
-            {/* Product Image */}
+            {/* IMAGE */}
             <img
               src={product.images[0].src}
               alt={product.name}
               style={{
                 width: '100%',
-                height: '220px',
+                height: isMobile ? '160px' : '220px',
                 objectFit: 'cover',
                 borderBottom: '1px solid #f0f0f0',
               }}
             />
 
-            {/* Product Info */}
-            <div style={{ padding: '14px 14px 52px' }}>
+            {/* CONTENT */}
+            <div style={{ padding: isMobile ? '10px' : '14px', paddingBottom: isMobile ? '60px' : '70px' }}>
               <h3 style={{
-                fontSize: '14px',
+                fontSize: isMobile ? '12px' : '14px',
                 fontWeight: '600',
                 color: '#333',
-                lineHeight: '1.4em',
-                marginBottom: '10px',
-                minHeight: '44px',
+                minHeight: isMobile ? '38px' : '44px',
+                marginBottom: '8px',
                 overflow: 'hidden',
+                lineHeight: '1.4em',
               }}>
-                {product.name}
+                {truncateName(product.name)}
               </h3>
 
-              <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontWeight: 'bold', color: '#ff6b00' }}>AED {product.sale_price}</span>
-                <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '12px' }}>AED {product.regular_price}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span style={{ fontWeight: 'bold', color: '#ff6b00', fontSize: isMobile ? '12px' : '14px' }}>
+                  AED {product.sale_price}
+                </span>
+                <span style={{
+                  textDecoration: 'line-through',
+                  color: '#999',
+                  fontSize: isMobile ? '10px' : '12px'
+                }}>
+                  AED {product.regular_price}
+                </span>
               </div>
 
-              <div style={{ fontSize: '12px', color: '#666', marginTop: '6px' }}>
+              <div style={{
+                fontSize: isMobile ? '10px' : '12px',
+                color: '#666',
+                marginTop: '5px'
+              }}>
                 ⭐ {product.rating} ({product.reviews}) • Sold {product.sold}
               </div>
             </div>
 
-            {/* Bottom Labels */}
+            {/* BOTTOM OVERLAY */}
             <div style={{
               position: 'absolute',
               bottom: '10px',
               left: '10px',
-              background: '#ffcc00',
-              color: '#000',
-              padding: '4px 8px',
-              borderRadius: '6px',
-              fontSize: '11px',
-              fontWeight: 'bold',
+              right: '10px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}>
-              Fast Delivery
+              <div style={{
+                background: '#ffcc00',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                fontSize: isMobile ? '9px' : '11px',
+                fontWeight: 'bold',
+                color: '#000'
+              }}>
+                Fast Delivery
+              </div>
+
+              <div
+                onClick={(e) => { e.stopPropagation(); navigate(product.path); }}
+                style={{
+                  background: '#ff6b00',
+                  color: '#fff',
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  fontSize: isMobile ? '10px' : '12px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  transition: '0.3s ease',
+                }}
+              >
+                Buy Now
+              </div>
             </div>
 
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(product.path);
-              }}
-              style={{
-                position: 'absolute',
-                bottom: '10px',
-                right: '10px',
-                background: '#ff6b00',
-                color: '#fff',
-                padding: '6px 12px',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                transition: 'background 0.3s ease',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#e65c00'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#ff6b00'}
-            >
-              Buy Now
-            </div>
           </div>
         ))}
       </div>
