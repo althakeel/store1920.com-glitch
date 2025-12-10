@@ -871,9 +871,9 @@ useEffect(() => {
     <div className="pcus-wrapper3" style={{ display: "flex" }}>
       <div className="pcus-categories-products1" style={{ width: "100%", transition: "width 0.3s ease" }}>
         {/* Banner */}
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        {/* <div style={{ display: "flex", justifyContent: "center" }}>
           <img src='https://db.store1920.com/wp-content/uploads/2025/11/Mini-Sub-Banner-2.webp' className="schoolimage" style={{ maxWidth: "400px", width: "100%", height: "auto" }} alt="Category banner" />
-        </div>
+        </div> */}
 
         {/* Categories */}
         <div className="pcus-categories-wrapper1 pcus-categories-wrapper3">
