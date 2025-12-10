@@ -12,16 +12,16 @@ import banner4 from '../assets/images/theme/banner/Banners-purple-2.webp';
 import banner5 from '../assets/images/theme/banner/Banners Halloween 2.webp';
 import banner6 from '../assets/images/theme/banner/Bannersmorron.webp';
 import Banner7 from '../assets/images/theme/theme6/Main.webp';
-import Banner8 from '../assets/images/theme/theme6/Main-2.webp'; 
+import Banner8 from '../assets/images/theme/theme6/Main-08-12-25.webp'; 
 
 export const themes = {
     1: {
     logo: Logo7,
     navbarBg: '#042232',
     bannerKey: Banner8,
-    bannerBg: '#372D9F ',
+    bannerBg: '#0E9672',
     lightningBanner: {
-      backgroundColor: '#372D9F ',
+      backgroundColor: '#0E9672',
       textColor: '#000000'
     }
   },
