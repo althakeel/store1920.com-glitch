@@ -6,7 +6,10 @@ export const generateInvoicePDF = async (order) => {
   const doc = new jsPDF('p', 'pt', 'a4');
   const pageWidth = doc.internal.pageSize.getWidth();
 
-  const paymentStatus = order.status === 'completed' ? 'Paid' : 'Not Paid';
+  // VAT calculations
+  const total = parseFloat(order.total);
+  const vat = parseFloat(order.total_tax || (total * 0.05 / 1.05));
+  const subtotal = total - vat;
 
   const invoiceElement = document.createElement('div');
   invoiceElement.style.width = '800px';
@@ -18,85 +21,95 @@ export const generateInvoicePDF = async (order) => {
   invoiceElement.style.lineHeight = '1.4';
 
   invoiceElement.innerHTML = `
-    <!-- Header: Logo Left, Seller Right -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-      <div>
-        <img src="${LogoIcon}" style="max-width:80px;" />
-      </div>
-      <div style="text-align:right; font-size:14px; color:#555;">
-        <strong>Seller:</strong> Your Store Name<br/>
-        DIFC - Dubai, UAE<br/>
-        Phone: +971 50 409 6028<br/>
-        Email: support@store1920.com
-      </div>
-    </div>
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px;">
+      
+      <!-- Left: Logo + Tax Invoice + Billing -->
+      <div style="width:50%;">
+        <img src="${LogoIcon}" style="max-width:80px; margin-bottom:10px;" />
 
-    <!-- Invoice Title -->
-    <h1 style="text-align:center; font-size:24px; color:#FF8C00; margin-bottom:20px;">Invoice</h1>
+        <h2 style="margin:0 0 10px 0; font-size:20px; color:#FF8C00;">
+          INVOICE
+        </h2>
 
-    <!-- Order Info -->
-    <div style="margin-bottom:20px;">
-      <strong>Order ID:</strong> PO-${order.id}<br/>
-      <strong>Date & Time:</strong> ${new Date(order.date_created).toLocaleString()}<br/>
-      <strong>Payment Method:</strong> ${order.payment_method_title || order.payment_method}<br/>
-      <strong>Payment Status:</strong> ${paymentStatus}<br/>
-      <strong>Email:</strong> ${order.billing.email}
-    </div>
-
-    <!-- Addresses -->
-    <div style="display:flex; justify-content:space-between; margin-bottom:25px;">
-      <div style="width:48%;">
-        <h3 style="margin-bottom:5px; color:#FF8C00;">Shipping Address</h3>
-        <p style="margin:0;">
-          ${order.shipping.first_name} ${order.shipping.last_name}<br/>
-          ${order.shipping.address_1}<br/>
-          ${order.shipping.address_2 || ''}<br/>
-          ${order.shipping.city}, ${order.shipping.state} ${order.shipping.postcode}<br/>
-          ${order.shipping.country}<br/>
-          Phone: ${order.shipping.phone}
-        </p>
-      </div>
-      <div style="width:48%;">
-        <h3 style="margin-bottom:5px; color:#FF8C00;">Billing Address</h3>
-        <p style="margin:0;">
+        <div style="font-size:13px; line-height:1.5;">
+          <strong>Billing Address</strong><br/>
           ${order.billing.first_name} ${order.billing.last_name}<br/>
           ${order.billing.address_1}<br/>
           ${order.billing.address_2 || ''}<br/>
-          ${order.billing.city}, ${order.billing.state} ${order.billing.postcode}<br/>
+          ${order.billing.city}, ${order.billing.state}<br/>
           ${order.billing.country}<br/>
-          Phone: ${order.billing.phone}
-        </p>
+          Phone: ${order.billing.phone}<br/>
+          Email: ${order.billing.email}
+        </div>
+      </div>
+
+      <!-- Right: Company Info + Order Info -->
+      <div style="width:45%; text-align:right; font-size:13px; line-height:1.6;">
+        <strong>ALTHAKEEL GENERAL TRADING L.L.C</strong><br/>
+        TRN 104587430000003<br/>
+        DUBAI<br/>
+        United Arab Emirates
+        <br/><br/>
+        <strong>Order Number:</strong> ${order.id}<br/>
+        <strong>Order Date:</strong> ${new Date(order.date_created).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })}<br/>
+        <strong>Payment Method:</strong> ${order.payment_method_title || order.payment_method}
       </div>
     </div>
 
     <!-- Product Table -->
-    <table style="width:100%; border-collapse: collapse; font-size:14px;">
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
       <thead style="background:#FF8C00; color:#fff;">
         <tr>
-          <th style="padding:10px; border:1px solid #ccc;">Product</th>
-          <th style="padding:10px; border:1px solid #ccc;">Qty</th>
-          <th style="padding:10px; border:1px solid #ccc;">Price</th>
+          <th style="padding:10px; border:1px solid #ccc; text-align:left;">Product</th>
+          <th style="padding:10px; border:1px solid #ccc; text-align:center;">Qty</th>
+          <th style="padding:10px; border:1px solid #ccc; text-align:right;">Price</th>
         </tr>
       </thead>
       <tbody>
         ${order.line_items.map((item, index) => `
           <tr style="background:${index % 2 === 0 ? '#f9f9f9' : '#fff'}">
             <td style="border:1px solid #ccc; padding:8px;">${item.name}</td>
-            <td style="border:1px solid #ccc; padding:8px;">${item.quantity}</td>
-            <td style="border:1px solid #ccc; padding:8px;">${order.currency} ${item.price}</td>
+            <td style="border:1px solid #ccc; padding:8px; text-align:center;">${item.quantity}</td>
+            <td style="border:1px solid #ccc; padding:8px; text-align:right;">
+              ${order.currency} ${parseFloat(item.total).toFixed(2)}
+            </td>
           </tr>
         `).join('')}
       </tbody>
     </table>
 
-    <!-- Total -->
-    <div style="margin-top:20px; text-align:right; font-size:16px; font-weight:bold;">
-      Total: ${order.currency} ${order.total}
+    <!-- Totals -->
+    <div style="margin-top:25px; width:100%; display:flex; justify-content:flex-end;">
+      <table style="width:300px; font-size:14px;">
+        <tr>
+          <td>Subtotal (ex. VAT)</td>
+          <td style="text-align:right;">
+            ${order.currency} ${subtotal.toFixed(2)}
+          </td>
+        </tr>
+        <tr>
+          <td>VAT 5%</td>
+          <td style="text-align:right;">
+            ${order.currency} ${vat.toFixed(2)}
+          </td>
+        </tr>
+        <tr>
+          <td style="font-weight:bold; padding-top:8px;">Total</td>
+          <td style="font-weight:bold; text-align:right; padding-top:8px;">
+            ${order.currency} ${total.toFixed(2)}
+          </td>
+        </tr>
+      </table>
     </div>
 
     <!-- Footer -->
-    <div style="margin-top:40px; text-align:center; font-size:14px; color:#555;">
-      Thank you for shopping with us! We hope you enjoy your purchase. 🌟
+    <div style="margin-top:40px; text-align:center; font-size:13px; color:#555;">
+      Thank you for shopping with us.
     </div>
   `;
 
