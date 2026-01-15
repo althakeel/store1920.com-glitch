@@ -1324,7 +1324,7 @@ const staticProducts = [
     subdesc: "Blower function",
     subdesc1: " Up to 17000 RPM turbo power",
     subdesc2: "Lightweight (1.5kg) and ergonomic",
-    subdesc3: " Long battery life (up to 40 minutes)",
+    subdesc3: " Long battery life",
     subdesc4: " Perfect for lawns, garages, cars, and patios",
 
     image: Product92,
@@ -1439,9 +1439,9 @@ const staticProducts = [
 
     Guaranteetitle: "1 Year Guarantee",
     Guranteedesc: "Full replacement or refund within 1 year.",
-    Faq1Q: " How long does the battery last?",
+    Faq1Q: "",
     fAQ1A:
-      "Each charge provides up to 40 minutes of continuous use in high-speed mode.",
+      "",
     Faq2Q: "  Can it vacuum pet hair and dust?",
     fAQ2A:
       "Yes! The vacuum mode is perfect for pet hair, dust, and car interiors.",
