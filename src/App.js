@@ -75,6 +75,7 @@ import NewUserBonusPopup from './components/common/newpopup';
 import TamaraSuccess from './pages/tamara-success';
 import TamaraFailure from './pages/tamara-failure';
 import TamaraCancel from './pages/tamara-cancel';
+import PaymentCallback from './pages/PaymentCallback';
 
 
 const AppContent = () => {
@@ -371,6 +372,7 @@ const AppContent = () => {
                     <Route path="/tamara-success" element={<TamaraSuccess />} />
                     <Route path="/tamara-failure" element={<TamaraFailure />} />
                     <Route path="/tamara-cancel" element={<TamaraCancel />} />
+                    <Route path="/payment-callback" element={<PaymentCallback />} />
 
                   </Routes>
                 </main>
